@@ -7,6 +7,8 @@ import (
 	"fmt"
 
 	"github.com/alecthomas/kong"
+	"github.com/pkg/errors"
+	"github.com/tellor-io/telliot/pkg/config"
 )
 
 // var ctx context.Context
@@ -390,10 +392,10 @@ import (
 // }
 
 var cli struct {
-	Config   kong.ConfigFlag
-	Transfer tokenCmd   `cmd help:"Transfer tokens"`
-	Approve  tokenCmd   `cmd help:"Approve tokens"`
-	Balance  balanceCmd `cmd help:"Check the balance of an address"`
+	Config   Config      `type:"path"`
+	Transfer transferCmd `cmd help:"Transfer tokens"`
+	Approve  approveCmd  `cmd help:"Approve tokens"`
+	Balance  balanceCmd  `cmd help:"Check the balance of an address"`
 	Stake    struct {
 		Deposit  stakeCmd `cmd`
 		Withdraw stakeCmd `cmd`
@@ -402,41 +404,72 @@ var cli struct {
 	} `cmd`
 }
 
+type Config string
+
+func (c Config) BeforeApply(ctx *kong.Context) error {
+	// 		ExitOnError(util.ParseLoggingConfig(*logPath), "parsing log file")
+	// 		ExitOnError(config.ParseConfig(*configPath), "parsing config file")
+	// 		ExitOnError(setup(), "setting up")
+	err := config.ParseConfig(string(c))
+	if err != nil {
+		return errors.Wrapf(err, "parsing config")
+	}
+	ctx.Bind(false)
+	return nil
+}
+
 type newDisputeCmd struct {
 }
 
 type voteCmd struct {
 }
-type stakeCmd struct {
-}
+type stakeCmd string
+type statusCmd string
+type requestCmd string
+type withdrawCmd string
 
 func (s *stakeCmd) Run() error {
+	fmt.Println("stake")
 	return nil
+}
+func (s *statusCmd) Run() error {
+	fmt.Println("status")
+	return nil
+}
+func (s *requestCmd) Run() error {
+	fmt.Println("requets")
+	return nil
+}
+func (s *withdrawCmd) Run() error {
+	fmt.Println("withdraw")
+	return nil
+
 }
 
 type balanceCmd struct {
 	Address string `arg optional`
 }
 
-func (b *balanceCmd) Run() error {
+func (b *balanceCmd) Run(thing bool) error {
 	addr := ETHAddress{}
 	addr.Set(b.Address)
-	fmt.Println(b.Address)
+	fmt.Println(thing)
 	return nil
 	// return ops.Balance()
 }
 
+type transferCmd tokenCmd
+type approveCmd tokenCmd
 type tokenCmd struct {
 	Address string `arg required`
 	Amount  string `arg required`
 }
 
-func (c *tokenCmd) Run() error {
+func (c *transferCmd) Run() error {
 	return nil
 }
 
-func (c ConfigFlag) BeforeResolve(kong *Kong, ctx *Context, trace *Path) error {
-	fmt.Println(c)
+func (c *approveCmd) Run() error {
 	return nil
 }
 

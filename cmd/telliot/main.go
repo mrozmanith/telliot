@@ -396,12 +396,20 @@ var cli struct {
 	Transfer transferCmd `cmd help:"Transfer tokens"`
 	Approve  approveCmd  `cmd help:"Approve tokens"`
 	Balance  balanceCmd  `cmd help:"Check the balance of an address"`
-	Stake    struct {
-		Deposit  stakeCmd `cmd`
-		Withdraw stakeCmd `cmd`
-		Request  stakeCmd `cmd`
-		Status   stakeCmd `cmd`
-	} `cmd`
+	Stake    stakeCmd    `cmd help:"perform one of the stake operations"`
+	Dispute  struct {
+		New struct {
+			Requestid  int `arg required`
+			Timestamp  int `arg required`
+			MinerIndex int `arg required`
+		} `cmd`
+		Vote struct {
+			disputeId int  `arg required`
+			support   bool `arg required`
+		} `cmd`
+		Show struct {
+		} `cmd`
+	}
 }
 
 type Config string
@@ -422,28 +430,16 @@ type newDisputeCmd struct {
 }
 
 type voteCmd struct {
+	disputeId int  `arg required`
+	support   bool `arg required`
 }
-type stakeCmd string
-type statusCmd string
-type requestCmd string
-type withdrawCmd string
+type stakeCmd struct {
+	Operation string `arg required`
+}
 
 func (s *stakeCmd) Run() error {
-	fmt.Println("stake")
+	fmt.Println(s.Operation)
 	return nil
-}
-func (s *statusCmd) Run() error {
-	fmt.Println("status")
-	return nil
-}
-func (s *requestCmd) Run() error {
-	fmt.Println("requets")
-	return nil
-}
-func (s *withdrawCmd) Run() error {
-	fmt.Println("withdraw")
-	return nil
-
 }
 
 type balanceCmd struct {

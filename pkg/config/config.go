@@ -128,9 +128,8 @@ const PrivateKeyEnvName = "ETH_PRIVATE_KEY"
 func ParseConfig(path string) error {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return errors.Wrapf(err, "open config file:%v", path)
+		return errors.Wrapf(err, "opening file:%v", path)
 	}
-
 	return ParseConfigBytes(data)
 }
 
@@ -139,6 +138,7 @@ func ParseConfigBytes(data []byte) error {
 	if err != nil {
 		return errors.Wrap(err, "parse config json")
 	}
+
 	// Check if the env is already set, only try loading .env if its not there.
 	if config.PrivateKey == "" {
 		err = godotenv.Load(config.EnvFile)

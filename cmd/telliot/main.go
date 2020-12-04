@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"crypto/ecdsa"
+	"fmt"
 	"math/big"
 	"os"
 	"os/signal"
@@ -43,9 +44,11 @@ var ctx context.Context
 // }
 
 func setup() (rpc.ETHClient, tellorCommon.Contract, tellorCommon.Account, error) {
+
 	cfg := config.GetConfig()
 
 	if !cfg.EnablePoolWorker {
+
 		// Create an rpc client
 		client, err := rpc.NewClient(cfg.NodeURL)
 		if err != nil {
@@ -400,26 +403,27 @@ func (d dataserverCmd) Run(logger log.Logger) error {
 // }
 
 var cli struct {
-	Config    configPath    `type:"path"`
-	logConfig logConfigPath `optional type:"path"`
-	logLevel  logLevel      `optional`
+	Config    configPath    `help: path to config file`
+	LogConfig logConfigPath `optional type:"path"`
+	LogLevel  logLevel      `type:"path"`
 	Transfer  transferCmd   `cmd help:"Transfer tokens"`
 	Approve   approveCmd    `cmd help:"Approve tokens"`
 	Balance   balanceCmd    `cmd help:"Check the balance of an address"`
 	Stake     stakeCmd      `cmd help:"perform one of the stake operations"`
-	Dispute   struct {
-		New struct {
-			Requestid  int `arg required`
-			Timestamp  int `arg required`
-			MinerIndex int `arg required`
-		} `cmd`
-		Vote struct {
-			disputeId int  `arg required`
-			support   bool `arg required`
-		} `cmd`
-		Show struct {
-		} `cmd`
-	}
+	// Dispute   struct {
+	// 	//		New newDisputeCmd `cmd`
+	// 	New struct {
+	// 		Requestid  int `arg required`
+	// 		Timestamp  int `arg required`
+	// 		MinerIndex int `arg required`
+	// 	} `cmd`
+	// 	Vote struct {
+	// 		disputeId int  `arg required`
+	// 		support   bool `arg required`
+	// 	} `cmd`
+	// 	Show struct {
+	// 	} `cmd`
+	// } `cmd`
 	Dataserver dataserverCmd `cmd`
 	Mine       mineCmd       `cmd`
 }
@@ -441,15 +445,17 @@ func (l logLevel) BeforeApply(ctx *kong.Context) error {
 	return nil
 }
 
-func (c configPath) BeforeApply(ctx *kong.Context) error {
+func (c configPath) AfterApply(ctx *kong.Context) error {
 	err := config.ParseConfig(string(c))
 	if err != nil {
 		return errors.Wrapf(err, "parsing config")
 	}
+	fmt.Println("llalas")
 	client, contract, account, err := setup()
 	if err != nil {
 		return errors.Wrapf(err, "setting up variables")
 	}
+
 	ctx.Bind(client)
 	ctx.Bind(contract)
 	ctx.Bind(account)
@@ -533,6 +539,7 @@ type tokenCmd struct {
 }
 
 func (b *balanceCmd) Run(client rpc.ETHClient, contract tellorCommon.Contract) error {
+	fmt.Println("las")
 	addr := ETHAddress{}
 	var err error
 	if b.Address == "" {
